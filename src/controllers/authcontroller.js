@@ -4,12 +4,12 @@ const config = require('../configs/config');
 
 const register = async (req, res) => {
     try{
-        const {fullName, email, password, phoneNumber, signInMethod} = req.body;
+        const {fullName, email, password, phoneNumber, signInMethod, role} = req.body;
 
         if (!fullName || !email || !password || !phoneNumber || !signInMethod){
             return res.status(400).json({ error: "All fields are required"});   
         }
-
+        
         const existingUser = await User.findOne({ email });
         if (existingUser){
             return res.status(400).json({ error: "User already exists"});
@@ -22,15 +22,17 @@ const register = async (req, res) => {
             phoneNumber,
             signInMethod
         });
-
+        if (role) user.role = role;
         await user.save();
         // Never send back password
-        const userData = {
-          id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-        };
-        res.status(201).json({ message: "User registered successfully", userData });
+        const userData = user.toJSON();
+        delete userData.password;
+        // const userData = {
+        //   id: user._id,
+        //   fullName: user.fullName,
+        //   email: user.email,
+        // };
+        res.status(201).json({ message: "User registered successfully", user: userData });
     } catch (error) {
         console.error("Error registering user:", error);
         res.status(500).json({ error: "Server error. Please try again later." });

@@ -6,9 +6,9 @@ const config = {
     MONGODB_URI : process.env.MONGODB_URI,
     JWT_SECRET : process.env.JWT_SECRET,
     JWT_EXPIRATION : process.env.JWT_EXPIRATION,
-    CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
-    API_BASE_URL: process.env.API_BASE_URL || "http://localhost:5000/api",
-    FRONTEND_BASE_URL: process.env.FRONTEND_BASE_URL || "http://localhost:3000",
+    CLOUDINARY_CLOUD_NAME : process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY : process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET : process.env.CLOUDINARY_API_SECRET
 }
 
 module.exports = config;

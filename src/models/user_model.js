@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
         password: {type: String, required: true},
         signInMethod : {type: String, required: true},
         phoneNumber : {type: String, required: true},
+        urlToImage : String,
         geoPoint : {type: mongoose.Schema.Types.Mixed},
         role: {type: String, default: "customer"}
     },

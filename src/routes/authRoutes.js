@@ -1,5 +1,6 @@
 const express = require('express');
 const { register, login, deleteUser, getUser, updateUser } = require("../controllers/authcontroller");
+const { saveProfilePic } = require('../controllers/imagecontroller');
 const {validBsonId, verifyToken }= require('../middlewares/tokenMiddleware');
 const router = express.Router();
 
@@ -57,5 +58,15 @@ router.get("/users/:id", validBsonId, verifyToken, getUser);
  */
 router.post("/users/:id", validBsonId, verifyToken, updateUser)
 
+/**
+ * @description routes to update profile image
+ * @route /api/v1/auth/users/:id/pic
+ * @access Public
+ * @body { path }
+ * @method POST
+ * @returns { message, url }
+ * @returns { error }
+ */
+router.post("/users/:id/pic", validBsonId, verifyToken, saveProfilePic)
 
 module.exports = router;
