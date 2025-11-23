@@ -1,0 +1,31 @@
+{
+  "name": "cookmate_nodejs",
+  "version": "0.1.0",
+  "description": "Nodejs server for CookMate ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Not-MilanGurung/CookMate_nodejs.git"
+  },
+  "author": "Not-MilanGurung",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Not-MilanGurung/CookMate_nodejs/issues"
+  },
+  "homepage": "https://github.com/Not-MilanGurung/CookMate_nodejs#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
