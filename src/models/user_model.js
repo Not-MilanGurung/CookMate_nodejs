@@ -11,9 +11,9 @@ const userSchema = new mongoose.Schema(
         urlToImage : String,
         geoPoint : {type: mongoose.Schema.Types.Mixed},
         role: {
-          customer : {type: bool, default: true},
-          chef : {type: bool, default: false},
-          admin : {type: bool, default: false}
+          customer : {type: Boolean, default: true},
+          chef : {type: Boolean, default: false},
+          admin : {type: Boolean, default: false}
         }
     },
     {   
