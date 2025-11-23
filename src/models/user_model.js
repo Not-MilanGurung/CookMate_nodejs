@@ -10,7 +10,11 @@ const userSchema = new mongoose.Schema(
         phoneNumber : {type: String, required: true},
         urlToImage : String,
         geoPoint : {type: mongoose.Schema.Types.Mixed},
-        role: {type: String, default: "customer"}
+        role: {
+          customer : {type: bool, default: true},
+          chef : {type: bool, default: false},
+          admin : {type: bool, default: false}
+        }
     },
     {   
         timestamps: true    
