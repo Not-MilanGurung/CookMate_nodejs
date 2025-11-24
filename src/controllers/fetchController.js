@@ -36,7 +36,7 @@ const addCuisine = async (req, res) => {
 const fetchCuisines = async (req, res) => {
     try{
         const cuisines = await Cuisine.find();
-        return res.status(400).json({cuisines});
+        return res.status(200).json({cuisines});
 
     } catch (error) {
         console.error("Error fetching cuisine:", error);
