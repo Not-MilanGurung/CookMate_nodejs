@@ -31,14 +31,47 @@ const verifyToken = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, config.JWT_SECRET);
-        req.userId = decoded.userId;
-        next();
+        jwt.verify(token, config.JWT_SECRET, function(err, decoded){
+            if (err){
+                return res.status(401).json({error : err.message});
+            }
+            else if (decoded){
+                req.userId = decoded.userId;
+                next();
+            }
+            else
+                return res.status(401).json({ error: 'Invalid Token'});
+        }) ;
     }
     catch (error) { 
         console.error("Invalid token ", error)
-        res.status(401).json({ error: 'Invalid token' });
+        return res.status(401).json({ error: 'Invalid token' });
     }
 };
 
-module.exports = {verifyToken, validBsonId};
+const tokenExpired =(req, res, next) => {
+    const token = req.header('Authorization');
+    // console.log(token);
+    if (!token){
+        return res.status(401).json({ error: 'Access denied'});
+    }
+
+    try {
+        jwt.verify(token, config.JWT_SECRET, function(err, decoded){
+            if (err){
+                return res.status(401).json({error : err.message});
+            }
+            if (decoded){
+                return res.status(200).json({ message: 'The token is valid', userId: decoded.userId, expires: decoded.exp});
+            }
+            if (!err && !decoded){
+                return res.status(401).json({ error: 'Invalid Token'});
+            }
+        }) ;
+    }
+    catch (error) { 
+        console.error("Invalid token ", error)
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
+module.exports = {verifyToken, validBsonId, tokenExpired};
