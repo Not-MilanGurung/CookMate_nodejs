@@ -7,7 +7,6 @@ const validBsonId = (req, res, next) => {
         const { id } = req.params;
         
         if (!id ) {
-            console.log(id, postId);
             return res.status(400).json({ error: "Invalid id" });
         }
         if (id){
