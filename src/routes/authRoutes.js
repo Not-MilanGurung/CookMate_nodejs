@@ -1,7 +1,7 @@
 const express = require('express');
 const { register, login, deleteUser, getUser, updateUser } = require("../controllers/authcontroller");
 const { saveProfilePic } = require('../controllers/imagecontroller');
-const {validBsonId, verifyToken }= require('../middlewares/tokenMiddleware');
+const {validBsonId, verifyToken, tokenExpired }= require('../middlewares/tokenMiddleware');
 const router = express.Router();
 
 /**
@@ -68,5 +68,16 @@ router.post("/users/:id", validBsonId, verifyToken, updateUser)
  * @returns { error }
  */
 router.post("/users/:id/pic", validBsonId, verifyToken, saveProfilePic)
+
+/**
+ * @description Verify token validity
+ * @route /api/v1/auth/verifyToken
+ * @access Public
+ * @header { Authorization: token}
+ * @method POST
+ * @returns { message, expries}
+ * @returns {error}
+ */
+router.post('/verifyToken', tokenExpired);
 
 module.exports = router;
