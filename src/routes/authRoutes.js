@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, deleteUser, getUser, updateUser } = require("../controllers/authcontroller");
+const { register, login, deleteUser, getUser, updateUser, changeEmail } = require("../controllers/authcontroller");
 const { saveProfilePic } = require('../controllers/imagecontroller');
 const {validBsonId, verifyToken, tokenExpired }= require('../middlewares/tokenMiddleware');
 const router = express.Router();
@@ -56,7 +56,18 @@ router.get("/users/:id", validBsonId, verifyToken, getUser);
  * @returns { message }
  * @returns { error }
  */
-router.post("/users/:id", validBsonId, verifyToken, updateUser)
+router.post("/users/:id", validBsonId, verifyToken, updateUser);
+
+/**
+ * @description routes to change email
+ * @route /api/v1/auth/users/:id/email
+ * @access Public
+ * @body { email }
+ * @method POST
+ * @returns { message, email}
+ * @returns { error}
+ */
+router.post('/users/:id/email', validBsonId, verifyToken, changeEmail);
 
 /**
  * @description routes to update profile image
@@ -67,7 +78,7 @@ router.post("/users/:id", validBsonId, verifyToken, updateUser)
  * @returns { message, url }
  * @returns { error }
  */
-router.post("/users/:id/pic", validBsonId, verifyToken, saveProfilePic)
+router.post("/users/:id/pic", validBsonId, verifyToken, saveProfilePic);
 
 /**
  * @description Verify token validity

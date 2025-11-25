@@ -80,7 +80,7 @@ const updateUser = async (req, res) => {
     try{
         const userId = req.userId;
         const { id } = req.params;
-        const {fullName, phoneNumber, role, geoPoint} = req.body;
+        const {fullName, phoneNumber, role, geoPoint, userAddress} = req.body;
 
         if (!fullName && !phoneNumber && !role && !geoPoint){
             return res.status(400).json({ error: "An updated field is required"});
@@ -108,6 +108,10 @@ const updateUser = async (req, res) => {
 
         if (geoPoint){
             user.geoPoint = geoPoint;
+        }
+
+        if (userAddress){
+            user.userAddress = userAddress;
         }
 
         await user.save();
@@ -158,5 +162,31 @@ const getUser = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again later." });
   }
 }
+
+const changeEmail = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const { id } = req.params;
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: "You need to provide a new email"});
+        }
+        if (userId != id){
+            return res.status(402).json({error: "You can not update someone else's account"});
+        }
+
+        const user = await User.findById(id).select("-password");
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        user.email = email;
+        await user.save();
+        return res.status(200).json({ message: "Successfully changed email", email});
+    } catch (e){
+        console.error("Error changing email:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+}
 // export the controller functions
-module.exports = { register, login, deleteUser, getUser, updateUser };
+module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail };

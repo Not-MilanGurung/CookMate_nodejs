@@ -1,10 +1,12 @@
 const Cuisine = require('../models/cuisinesModel');
+const Dish = require('../models/dishesModel');
 const User = require('../models/user_model');
+const { uploadFoodPic } = require('../services/imageServices');
 
 const addCuisine = async (req, res) => {
     try{
         const userId = req.userId;
-        const {name, dishes} = req.body;
+        const {name} = req.body;
         if (!name) {
             return res.status(400).json({ error: 'Cuisine name not given'});
         }
@@ -20,9 +22,6 @@ const addCuisine = async (req, res) => {
             return res.status(400).json({ error: "A cuisine with same name already exists"});
         }
         const cuisine = new Cuisine({name});
-        if (dishes){
-            cuisine.dishes = dishes;
-        }
 
         await cuisine.save();
         return res.status(200).json({ message: 'Cuisine added', cuisine})
@@ -48,29 +47,33 @@ const addDishes = async (req, res) => {
     try{
         const userId = req.userId;
         const {name} = req.params;
-        const {dishes, overwrite} = req.body;
-        if (!name || !dishes) {
+        const {dish} = req.body;
+        if (!name || !dish) {
             return res.status(400).json({ error: 'Fields can not be empty'});
         }
         const user = await User.findById(userId);
         if (!user){
             return res.status(401).json({ error: "The user doesn't exist"});
         }
-        if (!user.role.admin) {
+        if (!user.role.chef) {
             return res.status(401).json({ error: 'Unauthorized access'});
         }
         const cuisine = await Cuisine.findOne({name}); 
         if (!cuisine){
             return res.status(400).json({ error: "The cuisine"+ name + "doesn't exist"});
         }
-        if (overwrite){
-            cuisine.dishes = dishes;
-        }else {
-            cuisine.dishes.push({ $each: dishes });
-        }
+        const dishModel = new Dish({
+            name: dish,
+            chef: userId,
+            cuisine: cuisine.id,
+        });
         
-        await cuisine.save();
-        return res.status(200).json({ message: 'Cuisine updated', cuisine})
+        const imageURL = await uploadFoodPic(req.file.path, dishModel.id);
+        if (imageURL){
+            dishModel.urlToImage = imageURL;
+        }
+        await dishModel.save();
+        return res.status(200).json({ message: 'Cuisine updated', dishModel})
 
     } catch (error) {
         console.error("Error adding cuisine:", error);
