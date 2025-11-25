@@ -1,7 +1,7 @@
 const express = require('express');
-const { register, login, deleteUser, getUser, updateUser, changeEmail } = require("../controllers/authcontroller");
-const { saveProfilePic } = require('../controllers/imagecontroller');
+const { register, login, deleteUser, getUser, updateUser, changeEmail, updateProfilePic } = require("../controllers/authcontroller");
 const {validBsonId, verifyToken, tokenExpired }= require('../middlewares/tokenMiddleware');
+const upload = require('../middlewares/multerMiddleware');
 const router = express.Router();
 
 /**
@@ -73,12 +73,12 @@ router.post('/users/:id/email', validBsonId, verifyToken, changeEmail);
  * @description routes to update profile image
  * @route /api/v1/auth/users/:id/pic
  * @access Public
- * @body { path }
+ * @body { image }
  * @method POST
  * @returns { message, url }
  * @returns { error }
  */
-router.post("/users/:id/pic", validBsonId, verifyToken, saveProfilePic);
+router.post("/users/:id/pic", validBsonId, verifyToken, upload.single('image'), updateProfilePic);
 
 /**
  * @description Verify token validity

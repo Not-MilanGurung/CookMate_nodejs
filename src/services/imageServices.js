@@ -23,6 +23,7 @@ const uploadProfilePic = async (filePath, userId) =>{
         const optimizeUrl = cloudinary.url('profilePics/'+userId, {
                 fetch_format: 'auto',
                 quality: 'auto',
+                crop: 'auto',
                 width: 300,
                 height: 300,
                 gravity: 'face'

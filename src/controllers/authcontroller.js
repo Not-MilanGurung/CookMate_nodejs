@@ -1,6 +1,7 @@
 const User = require("../models/user_model");
 const jwt = require('jsonwebtoken');
 const config = require('../configs/config');
+const { uploadProfilePic } = require('../services/imageServices');
 
 const register = async (req, res) => {
     try{
@@ -188,5 +189,37 @@ const changeEmail = async (req, res) => {
         return res.status(500).json({ error: "Server error. Please try again later." });
     }
 }
+
+const updateProfilePic = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const { id } = req.params;
+        const image  = req.file;
+        if (!image) {
+            return res.status(400).json({ error: "You need to provide a new profile pic"});
+        }
+        if (userId != id){
+            return res.status(402).json({error: "You can not update someone else's account"});
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const imageURL = await uploadProfilePic(image.path, userId);
+        if (!imageURL){
+            return res.status(400).json({ error: "Could not upload the image"});
+        }
+        user.urlToImage = imageURL;
+
+        await user.save();
+        return res.status(200).json({ message: "Successfully updated profile pic", urlToImage: imageURL});
+
+    } catch (e) {
+        console.error("Error changing email:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+}
 // export the controller functions
-module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail };
+module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail , updateProfilePic};

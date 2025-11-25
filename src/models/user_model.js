@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
         geoPoint : {type: mongoose.Schema.Types.Mixed},
         userAddress : String,
         role: {
-          customer : {type: Boolean, default: true},
+          customer : {type: Boolean, default: false},
           chef : {type: Boolean, default: false},
           admin : {type: Boolean, default: false}
         }
