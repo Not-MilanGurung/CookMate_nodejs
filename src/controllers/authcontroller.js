@@ -83,7 +83,7 @@ const updateUser = async (req, res) => {
         const { id } = req.params;
         const {fullName, phoneNumber, role, geoPoint, userAddress} = req.body;
 
-        if (!fullName || !phoneNumber || !role || !geoPoint || !userAddress){
+        if (!fullName && !phoneNumber && !role && !geoPoint && !userAddress){
             return res.status(400).json({ error: "An updated field is required"});
         }
         if (userId != id){
