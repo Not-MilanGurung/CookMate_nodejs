@@ -37,18 +37,18 @@ const uploadProfilePic = async (filePath, userId) =>{
     
 };
 
-const uploadFoodPic = async (filePath, foodId) => {
+const uploadFoodPic = async (filePath, foodId, userId) => {
     await cloudinary.uploader
             .upload(filePath, {
                 folder: "foodPics",
-                public_id: foodId,
+                public_id: foodId + userId,
                 resource_type : 'image'
             })
             .catch((error) => {
                 console.log(error);
             });
     
-    const foodWide = cloudinary.url('foodPics/'+foodId, {
+    const foodWide = cloudinary.url('foodPics/'+foodId+userId, {
         width: 800,
         height: 450,
         crop: "fill",

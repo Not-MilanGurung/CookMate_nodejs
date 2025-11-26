@@ -68,7 +68,7 @@ const addDishes = async (req, res) => {
             cuisine: cuisine.id,
         });
         
-        const imageURL = await uploadFoodPic(req.file.path, dishModel.id);
+        const imageURL = await uploadFoodPic(req.file.path, dishModel.id, userId);
         if (imageURL){
             dishModel.urlToImage = imageURL;
         }
