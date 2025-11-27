@@ -103,10 +103,6 @@ const updateUser = async (req, res) => {
             user.phoneNumber = phoneNumber;
         }
 
-        if (role) {
-            user.role = role;
-        }
-
         if (geoPoint){
             user.geoPoint = geoPoint;
         }
@@ -285,4 +281,4 @@ const updateProfilePic = async (req, res) => {
     }
 }
 // export the controller functions
-module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail , updateProfilePic};
+module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail , updateProfilePic, addRole, };
