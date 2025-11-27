@@ -1,5 +1,5 @@
 const Booking = require('../models/bookingModel');
-const User = require('../models/user_model');
+const {User} = require('../models/user_model');
 const mongoose = require('mongoose');
 
 const createBooking = async (req, res) => {

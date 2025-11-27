@@ -1,6 +1,6 @@
 const Cuisine = require('../models/cuisinesModel');
 const Dish = require('../models/dishesModel');
-const User = require('../models/user_model');
+const {User} = require('../models/user_model');
 const { uploadFoodPic } = require('../services/imageServices');
 
 const addCuisine = async (req, res) => {
@@ -14,7 +14,7 @@ const addCuisine = async (req, res) => {
         if (!user){
             return res.status(401).json({ error: "The user doesn't exist"});
         }
-        if (!user.role.admin) {
+        if (!user.role.includes("admin")) {
             return res.status(401).json({ error: 'Unauthorized access'});
         }
         const existsing = await Cuisine.findOne({name}); 
@@ -55,7 +55,7 @@ const addDishes = async (req, res) => {
         if (!user){
             return res.status(401).json({ error: "The user doesn't exist"});
         }
-        if (!user.role.chef) {
+        if (!user.role.includes("chef")) {
             return res.status(401).json({ error: 'Unauthorized access'});
         }
         const cuisine = await Cuisine.findOne({name}); 

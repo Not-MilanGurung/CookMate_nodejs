@@ -1,4 +1,4 @@
-const User = require("../models/user_model");
+const {User, rolesEnum} = require("../models/user_model");
 const jwt = require('jsonwebtoken');
 const config = require('../configs/config');
 const { uploadProfilePic } = require('../services/imageServices');
@@ -81,7 +81,7 @@ const updateUser = async (req, res) => {
     try{
         const userId = req.userId;
         const { id } = req.params;
-        const {fullName, phoneNumber, role, geoPoint, userAddress} = req.body;
+        const {fullName, phoneNumber, geoPoint, userAddress} = req.body;
 
         if (!fullName && !phoneNumber && !role && !geoPoint && !userAddress){
             return res.status(400).json({ error: "An updated field is required"});
@@ -119,10 +119,70 @@ const updateUser = async (req, res) => {
         return res.status(200).json({ message: 'User updated successfully'});
 
     }catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error updating user:", error);
         return res.status(500).json({ error: "Server error. Please try again later." });
   }
 }
+
+const addRole = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { id } = req.params;
+        const { role } = req.body;
+
+        if (!role){
+            return res.status(400).json({error: "Role is required"});
+        }
+        const user = await User.findById(userId);
+        if (id != userId || !user.role.includes("admin")){
+            return res.status(402).json({ error: "You can not edit someone else's roles"});
+        }
+        if (!(role in rolesEnum)){
+            return res.status(400).json({ error: "Enter a valid role"});
+        }
+        user.role.push(role);
+        await user.save();
+        const {password: _, ...userData} = user.toObject();
+        return res.status(200).json({ message: "Added the role", user: userData})
+    } catch (error) {
+        console.error("Error adding role to user:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+}
+
+const updateChefUser = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { id } = req.params;
+        const {speciality, experience } = req.body;
+
+        if (!speciality && !experience){
+            return res.status(400).json({ error: "An updated field is required"});
+        }
+        if (userId != id){
+            return res.status(402).json({error: "You can not update someone else's account"});
+        }
+
+        const user = await User.findById(id).select("-password");
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (!user.role.includes("chef")){
+            return res.status(400).json({ error: "The user is not a chef"});
+        }
+        if (speciality){
+            user.chef.speciality = speciality;
+        }
+        if (experience){
+            user.chef.experience = experience;
+        }
+        await user.save();
+        return res.status(200).json({message: "Updated succesfully", user});
+    } catch (error){
+        console.error("Error updating chef fields:", error);
+        return res.status(500).json({ error: "Server error. Please try again later."})
+    }
+};
 
 // controller functions to delete a user by ID (optional enhancement) --- IGNORE ---
 const deleteUser = async (req, res) => {
@@ -175,7 +235,10 @@ const changeEmail = async (req, res) => {
         if (userId != id){
             return res.status(402).json({error: "You can not update someone else's account"});
         }
-
+        const existingUser = await User.findOne({ email: email});
+        if (existingUser){
+            return res.status(400).json({ error: "The provided email is already registered"});
+        }
         const user = await User.findById(id).select("-password");
         if (!user) {
             return res.status(404).json({ error: "User not found" });

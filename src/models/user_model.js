@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const rolesEnum = ["customer", "chef", "admin"];
+
 const userSchema = new mongoose.Schema(
     {
         fullName:{type: String, required: true},
@@ -12,10 +14,14 @@ const userSchema = new mongoose.Schema(
         geoPoint : {type: mongoose.Schema.Types.Mixed},
         userAddress : String,
         role: {
-          customer : {type: Boolean, default: false},
-          chef : {type: Boolean, default: false},
-          admin : {type: Boolean, default: false}
-        }
+			type: [String],
+			enum: rolesEnum,
+			default: ["customer"]
+        },
+		chef: {
+			speciality: {type: mongoose.Schema.Types.ObjectId, ref: 'Cuisine'},
+			experience: String
+		},
     },
     {   
         timestamps: true    
@@ -33,4 +39,4 @@ userSchema.methods.comparePassword = function (candidatePassword) {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+module.exports = {User, rolesEnum};
