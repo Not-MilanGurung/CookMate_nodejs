@@ -48,7 +48,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-const tokenExpired =(req, res, next) => {
+const tokenExpired =(req, res) => {
     const token = req.header('Authorization');
     // console.log(token);
     if (!token){

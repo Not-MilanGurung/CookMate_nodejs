@@ -1,5 +1,5 @@
 const express = require('express');
-const { addCuisine, fetchCuisines, addDishes} = require('../controllers/fetchController');
+const { addCuisine, fetchCuisines, addDishes, getDishes} = require('../controllers/fetchController');
 const { validBsonId, verifyToken } = require('../middlewares/tokenMiddleware');
 const upload  = require('../middlewares/multerMiddleware');
 
@@ -33,6 +33,15 @@ router.get('/cuisines', verifyToken, fetchCuisines);
  * @returns { message, cuisine}
  */
 
-router.post('/cuisines/:name', verifyToken, upload.single('image'), addDishes);
+router.post('/chef/:id/cuisines/:name', validBsonId, verifyToken, upload.single('image'), addDishes);
+
+/**
+ * @description For getting dishes of chef
+ * @access Public
+ * @method GET
+ * @returns { error }
+ * @returns { message, dishes}
+ */
+router.get('/chef/:id/dishes', validBsonId, verifyToken, getDishes);
 
 module.exports = router;

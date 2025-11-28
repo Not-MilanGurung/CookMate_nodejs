@@ -46,14 +46,18 @@ const fetchCuisines = async (req, res) => {
 const addDishes = async (req, res) => {
     try{
         const userId = req.userId;
-        const {name} = req.params;
+        const {name, id} = req.params;
         const {dish} = req.body;
+        const image = req.file;
+        if (!image) {
+            return res.status(400).json({ error: "Upload an image file"});
+        }
         if (!name || !dish) {
             return res.status(400).json({ error: 'Fields can not be empty'});
         }
         const user = await User.findById(userId);
         if (!user){
-            return res.status(401).json({ error: "The user doesn't exist"});
+            return res.status(404).json({ error: "The user doesn't exist"});
         }
         if (!user.role.includes("chef")) {
             return res.status(401).json({ error: 'Unauthorized access'});
@@ -68,7 +72,7 @@ const addDishes = async (req, res) => {
             cuisine: cuisine.id,
         });
         
-        const imageURL = await uploadFoodPic(req.file.path, dishModel.id, userId);
+        const imageURL = await uploadFoodPic(image.path, dishModel.id, userId);
         if (imageURL){
             dishModel.urlToImage = imageURL;
         }
@@ -81,4 +85,38 @@ const addDishes = async (req, res) => {
   }
 }
 
-module.exports = { addCuisine, fetchCuisines, addDishes};
+const getDishes = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+        if (!user){
+            return res.status(404).json({ error: "The user doesn't exist"});
+        }
+        if (!user.role.includes("chef")){
+            return res.status(401).json({ error: "The requested user is not a chef"});
+        }
+        const dishes = await Dish.find({ chef: id})
+            .populate('cuisine')
+            .select('-chef');
+        const grouped = dishes.reduce((acc, dish) => {
+            const cuisineName = dish.cuisine?.name || "Unknown";
+
+            if (!acc[cuisineName]) {
+                acc[cuisineName] = [];
+            }
+            
+            acc[cuisineName].push(dish);
+            return acc;
+        }, {});
+
+        return res.status(200).json({ message: "Got dishes", dishes: grouped});
+    } catch (error) {
+        console.error("Error getting dishes: ", error);
+        return res.status(500).json({ error: "Server error. Please try again later."});
+    } 
+};
+
+
+
+
+module.exports = { addCuisine, fetchCuisines, addDishes, getDishes};

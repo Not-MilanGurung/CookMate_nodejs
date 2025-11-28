@@ -42,7 +42,8 @@ const uploadFoodPic = async (filePath, foodId, userId) => {
             .upload(filePath, {
                 folder: "foodPics",
                 public_id: foodId + userId,
-                resource_type : 'image'
+                resource_type : 'image',
+                overwrite: true
             })
             .catch((error) => {
                 console.log(error);

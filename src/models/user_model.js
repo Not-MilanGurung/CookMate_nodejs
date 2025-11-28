@@ -4,28 +4,38 @@ const bcrypt = require('bcryptjs');
 const rolesEnum = ["customer", "chef", "admin"];
 
 const userSchema = new mongoose.Schema(
-    {
-        fullName:{type: String, required: true},
-        email: {type: String, required: true, unique: true},
-        password: {type: String, required: true},
-        signInMethod : {type: String, required: true},
-        phoneNumber : {type: String, required: true},
-        urlToImage : String,
-        geoPoint : {type: mongoose.Schema.Types.Mixed},
-        userAddress : String,
-        role: {
-			type: [String],
-			enum: rolesEnum,
-			default: ["customer"]
-        },
+  {
+    fullName:{type: String, required: true},
+    email: {type: String, required: true, unique: true},
+    password: {type: String, required: true},
+    signInMethod : {type: String, required: true},
+    phoneNumber : {type: String, required: true},
+    urlToImage : String,
+    userAddress : String,
+    role: {
+      type: [String],
+      enum: rolesEnum,
+      default: ["customer"]
+    },
+    location: {
+      type: {
+        type: String, // Don't do `{ location: { type: String } }`
+        enum: ['Point'], // 'location.type' must be 'Point'
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],
+        required: true
+      }
+    },
 		chef: {
-			speciality: {type: mongoose.Schema.Types.ObjectId, ref: 'Cuisine'},
+			speciality: String,
 			experience: String
 		},
-    },
-    {   
-        timestamps: true    
-    }
+  },
+  {   
+    timestamps: true    
+  }
 );
 
 userSchema.pre("save", async function () {
