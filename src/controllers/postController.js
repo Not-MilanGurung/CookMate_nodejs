@@ -1,4 +1,4 @@
-const { Types } = require('mongoose');
+const { Types, Schema } = require('mongoose');
 const {Post, Comment} = require('../models/chefPostModel');
 const { User } = require('../models/user_model');
 const { uploadFoodPic } = require('../services/imageServices');
@@ -93,12 +93,22 @@ const deletePost = async (req,res) => {
 
 const getPosts = async (req, res) => {
     try {
+        const userId = req.userId;
         const { skip } = req.query;
         if (!skip) skip = 0;
         const posts = await Post.find().sort({ createdAt: 'asc'}).skip(skip).limit(20)
                     .populate('chef', 'fullName _id urlToImage chef').exec();
+        const user = await User.findById(userId);
         const postMap = posts.map((e) => {
-            const {likes : _, comments : __, ...data} = e.toObject();
+            const {likes : likes, comments : __, ...data} = e.toObject();
+            data.liked = false;
+            data.favorite = false;
+            if (likes.some(id => id.equals(userId))){
+                data.liked = true;
+            } 
+            if (user.favoritePosts.includes(data._id)){
+                data.favorite = true;
+            }
             return data;
         }); 
         return res.status(200).json({posts: postMap});
@@ -112,19 +122,24 @@ const getPostById = async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
-        const post = await Post.findById(id).populate({path: 'chef', select: 'fullName _id'})
+        const post = await Post.findById(id).populate({path: 'chef', select: 'fullName _id chef'})
                     .populate('comments')
                     .populate({path: 'comments', 
                         populate: {path: 'user', select:'fullName _id'}}).exec();
         if (!post){
             return res.status(404).json({error: "Post not found"});
         }
+        const user = await User.findById(userId);
         const { likes , ...postData} = post.toObject();
-        liked = false;
-        if (likes.includes(userId)){
+        postData.liked = false;
+        postData.favorite = false;
+        if (likes.some(id => id.equals(userId))){
             liked = true;
         }
-        return res.status(200).json({ liked, postData});
+        if (user.favoritePosts.includes(post.id)){
+            postData.favorite = true;
+        }
+        return res.status(200).json({ postData});
     } catch (error) {
         console.error("Error getting a post: ", error);
         return res.status(500).json({ error: "Internal server error. Try again later."});
@@ -151,6 +166,33 @@ const likeUnlikePost = async (req, res) => {
     } catch (error) {
         console.error("Error liking a post: ", error);
         return res.status(500).json({ error: "Internal server error. Try again later."});
+    }
+}
+
+const favoriteUnfavoritePost = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const {id} = req.params;
+        const post = await Post.findById(id);
+        if (!post){
+            return res.status(404).json({error: "Post not found"});
+        }
+        const user = await User.findById(userId);
+        if (!user){
+            return res.status(404).json({error: "User not found"});
+        }
+        if (user.favoritePosts.includes(id)){
+            user.favoritePosts.pop(id);
+            await user.save();
+            return res.status(200).json({message: "Unfavorited post"});
+        } else {
+            user.favoritePosts.push(id);
+            await user.save();
+            return res.status(200).json({message: "Favorited post"});
+        }
+    } catch (error){
+        console.error("Error favoriting a post: ",error);
+        return res.status(500).json({ error: "Internal server error. Try agina later."});
     }
 }
 
@@ -222,4 +264,4 @@ const updateComment = async (req, res) => {
         return res.status(500).json({ error: "Internal server error. Try again later."});
     }
 }
-module.exports = { createPost, getPosts, likeUnlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment};
+module.exports = { createPost, getPosts, likeUnlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoriteUnfavoritePost};

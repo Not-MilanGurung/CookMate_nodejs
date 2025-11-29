@@ -10,7 +10,7 @@ const bookingSchema = new Schema({
     timeInterval: {type: String, required: true},
     dishes: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
     cost: {type: Schema.Types.Int32, required: true},
-    status: {type: String, default: "Requested"},
+    status: {type: String, default: "pending", enum : ["pending", "upcoming", "cancelled", "completed"]},
     rating: {type: Number, min: 0, max: 5}
 },{
     timestamps: true

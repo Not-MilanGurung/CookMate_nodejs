@@ -62,6 +62,15 @@ router.delete('/:id', validBsonId, verifyToken, postController.deletePost);
 router.post('/:id/like', validBsonId, verifyToken, postController.likeUnlikePost);
 
 /**
+ * @description Route to favorite and unfavorite post
+ * @access Public
+ * @method POST
+ * @returns { messsage }
+ * @returns {error}
+ */
+router.post('/:id/favorite', validBsonId, verifyToken, postController.favoriteUnfavoritePost);
+
+/**
  * @description Route to creatte a comment
  * @access Public
  * @method POST
