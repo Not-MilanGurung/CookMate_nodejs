@@ -125,7 +125,7 @@ const getPostById = async (req, res) => {
         const post = await Post.findById(id).populate({path: 'chef', select: 'fullName _id chef'})
                     .populate('comments')
                     .populate({path: 'comments', 
-                        populate: {path: 'user', select:'fullName _id'}}).exec();
+                        populate: {path: 'user', select:'fullName _id urlToImage'}}).exec();
         if (!post){
             return res.status(404).json({error: "Post not found"});
         }
