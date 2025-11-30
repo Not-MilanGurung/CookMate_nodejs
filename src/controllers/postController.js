@@ -34,6 +34,9 @@ const createPost = async (req, res) => {
         post.urlToImage = urlToImage;
 
         await post.save();
+        post.liked = false;
+        post.favorite = false;
+        await post.populate('chef', 'fullName _id urlToImage chef');
         return res.status(200).json({message: "Post created successfully", post});
     } catch (error) {
         console.error("Error creating a post: ", error);
@@ -118,6 +121,34 @@ const getPosts = async (req, res) => {
     }
 }
 
+const getPostOfChef = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const {id} = req.params;
+        var {skip} = req.query;
+        if (!skip) skip = 0;
+        const user = await User.findById(userId);
+        const posts = await Post.find({ chef: id}).sort({ createdAt: 'asc'}).skip(skip).limit(20)
+                    .populate('chef', 'fullName _id urlToImage chef').exec();
+        const postMap = posts.map((e) => {
+            const {likes : likes, comments : __, ...data} = e.toObject();
+            data.liked = false;
+            data.favorite = false;
+            if (likes.some(id => id.equals(userId))){
+                data.liked = true;
+            } 
+            if (user.favoritePosts.includes(data._id)){
+                data.favorite = true;
+            }
+            return data;
+        }); 
+        return res.status(200).json({posts: postMap});
+    } catch (error) {
+        console.error("Error getting posts: ", error);
+        return res.status(500).json({ error: "Internal server error. Try again later."});
+    }
+}
+
 const getPostById = async (req, res) => {
     try {
         const userId = req.userId;
@@ -145,6 +176,8 @@ const getPostById = async (req, res) => {
         return res.status(500).json({ error: "Internal server error. Try again later."});
     }
 }
+
+
 
 const likeUnlikePost = async (req, res) => {
     try {
@@ -264,4 +297,7 @@ const updateComment = async (req, res) => {
         return res.status(500).json({ error: "Internal server error. Try again later."});
     }
 }
-module.exports = { createPost, getPosts, likeUnlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoriteUnfavoritePost};
+module.exports = { 
+    createPost, getPosts, likeUnlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoriteUnfavoritePost,
+    getPostOfChef
+};

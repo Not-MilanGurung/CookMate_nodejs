@@ -99,4 +99,13 @@ router.put('/comment/:id', validBsonId, verifyToken, postController.updateCommen
  */
 router.delete('/comment/:id', validBsonId, verifyToken, postController.deleteComment);
 
+/**
+ * @description Route to get post of a chef
+ * @access Public
+ * @method GET
+ * @returns {posts}
+ * @returns {error}
+ */
+router.get('/chef/:id', validBsonId, verifyToken, postController.getPostOfChef);
+
 module.exports = router;

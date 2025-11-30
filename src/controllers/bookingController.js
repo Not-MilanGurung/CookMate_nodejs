@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 const createBooking = async (req, res) => {
     try{
         const userId = req.userId;
-        const { chefId, eventType, date, timeInterval, noOfPeople, dishes } = req.body;
+        const { chefId, eventType, date, timeInterval, noOfPeople, packages } = req.body;
 
-        if (!chefId || !eventType || !date || !timeInterval || !noOfPeople || !dishes ){
+        if (!chefId || !eventType || !date || !timeInterval || !noOfPeople || !packages ){
             return res.status(400).json({ error: "All fields are required"});
         }
         const user = await User.findById(userId);
@@ -29,7 +29,7 @@ const createBooking = async (req, res) => {
             timeInterval,
             eventType,
             noOfPeople,
-            dishes,
+            packages,
             cost
         });
 

@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema(
       }
     },
 		chef: {
-			speciality: {type: String, default: "Nepali"},
-      cuisines: {type: [String], default: ["Nepali"]},
+			speciality: {type: String},
+      cuisines: {type: [String]},
 			experience: {type: String, default: "0 years"},
       rating: {type: Number, default: 0.0},
       ratingCount : {type: Number, default: 0}
