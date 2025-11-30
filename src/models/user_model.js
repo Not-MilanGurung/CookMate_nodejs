@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
     phoneNumber : {type: String, required: true},
     urlToImage : String,
     userAddress : String,
+    bio : {type: String, },
     role: {
       type: [String],
       enum: rolesEnum,
