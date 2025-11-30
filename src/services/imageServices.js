@@ -9,7 +9,7 @@ cloudinary.config({
 
 const uploadProfilePic = async (filePath, userId) =>{
     try{
-        const url = await cloudinary.uploader
+        const result = await cloudinary.uploader
                 .upload(filePath, {
                     folder: "profilePics",
                     public_id: userId,
@@ -29,7 +29,7 @@ const uploadProfilePic = async (filePath, userId) =>{
                 gravity: 'face'
             });
 
-        return url;
+        return result.secure_url;
     }catch (error){
         console.log(error);
         return null;
