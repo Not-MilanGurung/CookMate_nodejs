@@ -99,7 +99,7 @@ const getPosts = async (req, res) => {
         const userId = req.userId;
         const { skip } = req.query;
         if (!skip) skip = 0;
-        const posts = await Post.find().sort({ createdAt: 'descending'}).skip(skip).limit(20)
+        const posts = await Post.find().sort({ createdAt: 'descending'}).skip(skip).limit(50)
                     .populate('chef', 'fullName _id urlToImage chef').exec();
         const user = await User.findById(userId);
         const postMap = posts.map((e) => {

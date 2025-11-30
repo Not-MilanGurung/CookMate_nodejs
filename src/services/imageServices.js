@@ -28,7 +28,7 @@ const uploadProfilePic = async (filePath, userId) =>{
                 height: 300,
                 gravity: 'face'
             });
-
+            console.log(result);
         return result.secure_url;
     }catch (error){
         console.log(error);

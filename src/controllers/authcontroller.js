@@ -185,7 +185,7 @@ const updateChefUser = async (req, res) => {
             }
             user.chef.speciality = speciality;
         } else {
-            if (!user.chef.cuisines.includes(user.chef.speciality)){
+            if (!user.chef.cuisines.includes(user.chef.speciality) && user.chef.speciality){
                 return res.status(400).json({ error: "The cuisines list must contain the speciality or a new speciality must be provided"});
             }
         }
