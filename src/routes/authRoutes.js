@@ -1,5 +1,8 @@
 const express = require('express');
-const { register, login, deleteUser, getUser, updateUser, changeEmail, updateProfilePic } = require("../controllers/authcontroller");
+const { 
+    register, login, deleteUser, getUser, updateUser, changeEmail, updateProfilePic, addRole, updateChefUser,
+    deleteCuisine 
+} = require("../controllers/authcontroller");
 const {validBsonId, verifyToken, tokenExpired }= require('../middlewares/tokenMiddleware');
 const upload = require('../middlewares/multerMiddleware');
 const router = express.Router();
@@ -79,6 +82,37 @@ router.post('/users/:id/email', validBsonId, verifyToken, changeEmail);
  * @returns { error }
  */
 router.post("/users/:id/pic", validBsonId, verifyToken, upload.single('image'), updateProfilePic);
+
+/**
+ * @description routes to add role
+ * @route /api/v1/auth/users/:id/role
+ * @access Public
+ * @body { role}
+ * @method POST
+ * @returns { error}
+ * @returns { message , user}
+ */
+router.post('/users/:id/role', validBsonId, verifyToken, addRole);
+
+/**
+ * @description route to update chef fields
+ * @access Public
+ * @body { speciality, cuisines, experience }
+ * @method post
+ * @returns { error }
+ * @returns {message, user}
+ */
+router.put('/users/:id/chef', validBsonId, verifyToken, updateChefUser);
+
+/**
+ * @description Route to remove a cuisine for profile
+ * @access Public
+ * @body { cuisine}
+ * @method POST
+ * @return { error }
+ * @returns { message, user}
+ */
+router.delete('/users/:id/cuisines', validBsonId, verifyToken, deleteCuisine);
 
 /**
  * @description Verify token validity

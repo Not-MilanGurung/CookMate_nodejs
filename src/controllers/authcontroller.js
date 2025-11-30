@@ -87,7 +87,7 @@ const updateUser = async (req, res) => {
             return res.status(400).json({ error: "An updated field is required"});
         }
         if (userId != id){
-            return res.status(402).json({error: "You can not update someone else's account"});
+            return res.status(401).json({error: "You can not update someone else's account"});
         }
 
         const user = await User.findById(id).select("-password");
@@ -130,11 +130,15 @@ const addRole = async (req, res) => {
             return res.status(400).json({error: "Role is required"});
         }
         const user = await User.findById(userId);
-        if (id != userId || !user.role.includes("admin")){
-            return res.status(402).json({ error: "You can not edit someone else's roles"});
+        if (id != userId && !user.role.includes("admin")){
+            return res.status(401).json({ error: "You can not edit someone else's roles"});
         }
-        if (!(role in rolesEnum)){
+        if (!(rolesEnum.includes(role))){
             return res.status(400).json({ error: "Enter a valid role"});
+        }
+        if (user.role.includes(role)){
+            const {password: _, ...userData} = user.toObject();
+            return res.status(200).json({ message: "The user is already in that role", user: userData});
         }
         user.role.push(role);
         await user.save();
@@ -150,13 +154,13 @@ const updateChefUser = async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
-        const {speciality, experience } = req.body;
+        const {speciality, cuisines, experience } = req.body;
 
-        if (!speciality && !experience){
+        if (!speciality && !experience && !cuisines){
             return res.status(400).json({ error: "An updated field is required"});
         }
         if (userId != id){
-            return res.status(402).json({error: "You can not update someone else's account"});
+            return res.status(401).json({error: "You can not update someone else's account"});
         }
 
         const user = await User.findById(id).select("-password");
@@ -166,19 +170,56 @@ const updateChefUser = async (req, res) => {
         if (!user.role.includes("chef")){
             return res.status(400).json({ error: "The user is not a chef"});
         }
-        if (speciality){
-            user.chef.speciality = speciality;
-        }
         if (experience){
             user.chef.experience = experience;
+        }
+        if (cuisines){
+            user.chef.cuisines = cuisines;
+        }
+        if (speciality){
+            if (!user.chef.cuisines.includes(speciality)){
+                return res.status(400).json({ error: "The speciality must be in the cuisines list"});
+            }
+            user.chef.speciality = speciality;
         }
         await user.save();
         return res.status(200).json({message: "Updated succesfully", user});
     } catch (error){
         console.error("Error updating chef fields:", error);
-        return res.status(500).json({ error: "Server error. Please try again later."})
+        return res.status(500).json({ error: "Server error. Please try again later."});
     }
 };
+
+const deleteCuisine = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const {id} = req.params;
+        const { cuisine } = req.body;
+        if (!cuisine) {
+            return res.status(400).json({ error: "Cuisine to pop is required."});
+        }
+        if (id != userId){
+            return res.status(401).json({ error: "You can not change someone else's profile"});
+        }
+        const user = await User.findById(id).select('-password');
+        if (!user){
+            return res.status(404).json({ error: "User not found"});
+        }
+        if (!user.chef.cuisines.includes(cuisine)){
+            return res.status(404).json({ error: "The cuisine doesn't exist in the list"});
+        }
+        if (user.chef.speciality == cuisine){
+            return res.status(400).json({ error: "Can not remove speciality for the cuisine. Change the speciality first"});
+        }
+        user.chef.cuisines.pop(cuisine);
+        await user.save();
+        return res.status(200).json({message: "Successfully removed the cuisine from the profile", user});
+
+    } catch (error) {
+        console.error("Error poping cuisines from the user's list: ", error);
+        return res.status(500).json({ error: "Internal server error. Please try again later"});
+    }
+}
 
 // controller functions to delete a user by ID (optional enhancement) --- IGNORE ---
 const deleteUser = async (req, res) => {
@@ -186,7 +227,7 @@ const deleteUser = async (req, res) => {
     const userId = req.userId;
     const { id } = req.params;
     if (userId != id){
-        return res.status(402).json({error: "You can not delete someone else's account"});
+        return res.status(401).json({error: "You can not delete someone else's account"});
     }
     const user = await User.findByIdAndDelete(id);
     if (!user) {
@@ -204,7 +245,7 @@ const getUser = async (req, res) => {
         const userId = req.userId;
         const { id } = req.params;
         if (userId != id){
-            return res.status(402).json({error: "You can not get data for someone else's account"});
+            return res.status(401).json({error: "You can not get data for someone else's account"});
         }
 
         const user = await User.findById(id).select("-password");
@@ -229,7 +270,7 @@ const changeEmail = async (req, res) => {
             return res.status(400).json({ error: "You need to provide a new email"});
         }
         if (userId != id){
-            return res.status(402).json({error: "You can not update someone else's account"});
+            return res.status(401).json({error: "You can not update someone else's account"});
         }
         const existingUser = await User.findOne({ email: email});
         if (existingUser){
@@ -258,7 +299,7 @@ const updateProfilePic = async (req, res) => {
             return res.status(400).json({ error: "You need to provide a new profile pic"});
         }
         if (userId != id){
-            return res.status(402).json({error: "You can not update someone else's account"});
+            return res.status(401).json({error: "You can not update someone else's account"});
         }
 
         const user = await User.findById(id);
@@ -281,4 +322,7 @@ const updateProfilePic = async (req, res) => {
     }
 }
 // export the controller functions
-module.exports = { register, login, deleteUser, getUser, updateUser, changeEmail , updateProfilePic, addRole, };
+module.exports = { 
+    register, login, deleteUser, getUser, updateUser, changeEmail , updateProfilePic, addRole, updateChefUser,
+    deleteCuisine
+};

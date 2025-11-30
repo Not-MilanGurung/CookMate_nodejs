@@ -20,7 +20,7 @@ const createPost = async (req, res) => {
             return res.status(404).json({ error: "User not found"});
         }
         if (!chef.role.includes('chef')){
-            return res.status(402).json({ error: "Only chefs can make posts"});
+            return res.status(401).json({ error: "Only chefs can make posts"});
         }
         const post = new Post({
             chef: userId,
@@ -55,7 +55,7 @@ const updatePost = async (req, res) => {
             return res.status(404).json({error: "Post not found"});
         }
         if (!post.chef.equals(userId)){
-            return res.status(402).json({ error: "Only the poster can update the post."});
+            return res.status(401).json({ error: "Only the poster can update the post."});
         }
         if (title) post.title = title;
         if (description) post.description = description;
@@ -81,7 +81,7 @@ const deletePost = async (req,res) => {
             return res.status(404).json({error: "Post not found"});
         }
         if (!post.chef.equals(userId) && !((await User.findById(userid)).role.includes('admin'))){
-            return res.status(402).json({ error: "Unauthorized action."});
+            return res.status(401).json({ error: "Unauthorized action."});
         }
         await post.deleteOne();
         return res.status(200).json({ message: "Successfully deleted post"});
@@ -229,7 +229,7 @@ const deleteComment = async (req, res) => {
             return res.status(404).json({error: "Comment not found"});
         }
         if (!comment.user.equals(userId)){
-            return res.status(402).json({ error: "Unauthorized action."});
+            return res.status(401).json({ error: "Unauthorized action."});
         }
         await comment.deleteOne();
         return res.status(200).json({ message: "Successsfully deleted comment"});
@@ -253,7 +253,7 @@ const updateComment = async (req, res) => {
             return res.status(404).json({error: "Comment not found"});
         }
         if (!comment.user.equals(userId)){
-            return res.status(402).json({ error: "Unauthorized action."});
+            return res.status(401).json({ error: "Unauthorized action."});
         }
         comment.body = text;
         await comment.save();

@@ -30,8 +30,9 @@ const userSchema = new mongoose.Schema(
     },
 		chef: {
 			speciality: {type: String, default: "Nepali"},
+      cuisines: {type: [String], default: ["Nepali"]},
 			experience: {type: String, default: "0 years"},
-      rating: {type: Number, default: 0},
+      rating: {type: Number, default: 0.0},
       ratingCount : {type: Number, default: 0}
 		},
     favoritePosts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Booking'}]

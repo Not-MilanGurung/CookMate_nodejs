@@ -1,7 +1,6 @@
 const Cuisine = require('../models/cuisinesModel');
 const Dish = require('../models/dishesModel');
 const {User} = require('../models/user_model');
-const { uploadFoodPic } = require('../services/imageServices');
 
 const addCuisine = async (req, res) => {
     try{
@@ -48,10 +47,6 @@ const addDishes = async (req, res) => {
         const userId = req.userId;
         const {name, id} = req.params;
         const {dish} = req.body;
-        const image = req.file;
-        if (!image) {
-            return res.status(400).json({ error: "Upload an image file"});
-        }
         if (!name || !dish) {
             return res.status(400).json({ error: 'Fields can not be empty'});
         }
@@ -72,10 +67,6 @@ const addDishes = async (req, res) => {
             cuisine: cuisine.id,
         });
         
-        const imageURL = await uploadFoodPic(image.path, dishModel.id, userId);
-        if (imageURL){
-            dishModel.urlToImage = imageURL;
-        }
         await dishModel.save();
         return res.status(200).json({ message: 'Cuisine updated', dishModel})
 
