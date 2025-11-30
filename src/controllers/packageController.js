@@ -5,7 +5,7 @@ const createPackage = async (req,res) =>{
     try{
         const userId = req.userId;
         const {name, price, description, dishes} = req.body;
-        if (!name || !price || !description || !dishes){
+        if (!name || !price || !description ){
             return res.status(400).json({error: "Insuffecient fields"});
         }
         const chef = await User.findById(userId);

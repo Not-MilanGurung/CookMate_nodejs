@@ -99,7 +99,7 @@ const getPosts = async (req, res) => {
         const userId = req.userId;
         const { skip } = req.query;
         if (!skip) skip = 0;
-        const posts = await Post.find().sort({ createdAt: 'asc'}).skip(skip).limit(20)
+        const posts = await Post.find().sort({ createdAt: 'descending'}).skip(skip).limit(20)
                     .populate('chef', 'fullName _id urlToImage chef').exec();
         const user = await User.findById(userId);
         const postMap = posts.map((e) => {
@@ -128,7 +128,7 @@ const getPostOfChef = async (req, res) => {
         var {skip} = req.query;
         if (!skip) skip = 0;
         const user = await User.findById(userId);
-        const posts = await Post.find({ chef: id}).sort({ createdAt: 'asc'}).skip(skip).limit(20)
+        const posts = await Post.find({ chef: id}).sort({ createdAt: 'descending'}).skip(skip).limit(20)
                     .populate('chef', 'fullName _id urlToImage chef').exec();
         const postMap = posts.map((e) => {
             const {likes : likes, comments : __, ...data} = e.toObject();
