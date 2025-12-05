@@ -53,22 +53,39 @@ router.put('/:id', validBsonId, verifyToken, upload.single('image'),postControll
 router.delete('/:id', validBsonId, verifyToken, postController.deletePost);
 
 /**
- * @description Route to like and unlike post
+ * @description Route to like post
  * @access Public
  * @method POST
  * @returns { message}
  * @returns { error }
  */
-router.post('/:id/like', validBsonId, verifyToken, postController.likeUnlikePost);
+router.post('/:id/like', validBsonId, verifyToken, postController.likePost);
 
 /**
- * @description Route to favorite and unfavorite post
+ * @description Route to ulike post
+ * @access Public
+ * @method Post
+ * @returns {message}
+ * @returns {error}
+ */
+router.post('/:id/unlike', validBsonId, verifyToken, postController.unlikePost);
+
+/**
+ * @description Route to favorite  post
  * @access Public
  * @method POST
  * @returns { messsage }
  * @returns {error}
  */
-router.post('/:id/favorite', validBsonId, verifyToken, postController.favoriteUnfavoritePost);
+router.post('/:id/favorite', validBsonId, verifyToken, postController.favoritePost);
+/**
+ * @description Route to unfavorite post
+ * @access Public
+ * @method POST
+ * @returns { messsage }
+ * @returns {error}
+ */
+router.post('/:id/unfavorite', validBsonId, verifyToken, postController.unfavoritePost);
 
 /**
  * @description Route to creatte a comment

@@ -8,7 +8,7 @@ const bookingSchema = new Schema({
     noOfPeople : {type: Schema.Types.Int32, required: true},
     date: {type: Date, required: true},
     timeInterval: {type: String, required: true},
-    dishes: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
+    packages: [Schema.Types.Mixed],
     cost: {type: Schema.Types.Int32, required: true},
     status: {type: String, default: "pending", enum : ["pending", "upcoming", "cancelled", "completed"]},
     rating: {type: Number, min: 0, max: 5}

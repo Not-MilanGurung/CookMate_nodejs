@@ -1,5 +1,6 @@
 const Booking = require('../models/bookingModel');
 const {User , rolesEnum} = require('../models/user_model');
+const Package = require('../models/packageModel');
 const mongoose = require('mongoose');
 
 const createBooking = async (req, res) => {
@@ -10,8 +11,8 @@ const createBooking = async (req, res) => {
         if (!chefId || !eventType || !date || !timeInterval || !noOfPeople || !packages ){
             return res.status(400).json({ error: "All fields are required"});
         }
-        const user = await User.findById(userId);
-        if (!user) {
+        const customer = await User.findById(userId);
+        if (!customer) {
             return res.status(404).json({ error: "User not found" });
         }
         const chef = await User.findById(chefId);
@@ -21,14 +22,19 @@ const createBooking = async (req, res) => {
         if (!chef.role.chef){
             return res.status(400).json({ error: "Only a chef can accept booking"});
         }
+        const prices = Array(packages).map(async (e) =>  {
+            const package = await Package.findById(e['id']);
+            return package.price;
+        });
+        ;
         const cost = 100;
         const booking = new Booking({
             chef,
-            user,
-            date,
-            timeInterval,
+            customer,
             eventType,
             noOfPeople,
+            date,
+            timeInterval,
             packages,
             cost
         });

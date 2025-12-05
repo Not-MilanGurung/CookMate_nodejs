@@ -179,8 +179,27 @@ const getPostById = async (req, res) => {
 
 
 
-const likeUnlikePost = async (req, res) => {
+const likePost = async (req, res) => {
     try {
+        const userId = req.userId;
+        const { id } = req.params;
+        const post = await Post.findById(id);
+        if (!post){
+            return res.status(404).json({error: "Post not found"});
+        }
+        if (!post.likes.includes(userId)) {
+            post.likes.push(userId);
+            await post.save();
+        }
+        return res.status(200).json({ message: "Liked the post."});
+    } catch (error) {
+        console.error("Error liking a post: ", error);
+        return res.status(500).json({ error: "Internal server error. Try again later."});
+    }
+}
+
+const unlikePost = async(req, res) => {
+    try{
         const userId = req.userId;
         const { id } = req.params;
         const post = await Post.findById(id);
@@ -190,20 +209,39 @@ const likeUnlikePost = async (req, res) => {
         if (post.likes.includes(userId)) {
             post.likes.pop(userId);
             await post.save();
-            return res.status(200).json({ message: "Unliked the post"});
-        } else {
-            post.likes.push(userId);
-            await post.save();
-            return res.status(200).json({ message: "Liked the post."});
         }
+        return res.status(200).json({ message: "Uniked the post."});
     } catch (error) {
         console.error("Error liking a post: ", error);
         return res.status(500).json({ error: "Internal server error. Try again later."});
     }
 }
 
-const favoriteUnfavoritePost = async (req, res) => {
+const favoritePost = async (req, res) => {
     try {
+        const userId = req.userId;
+        const {id} = req.params;
+        const post = await Post.findById(id);
+        if (!post){
+            return res.status(404).json({error: "Post not found"});
+        }
+        const user = await User.findById(userId);
+        if (!user){
+            return res.status(404).json({error: "User not found"});
+        }
+        if (!user.favoritePosts.includes(id)){
+            user.favoritePosts.push(id);
+            await user.save();
+        }
+        return res.status(200).json({message: "Favorited post"});
+    } catch (error){
+        console.error("Error favoriting a post: ",error);
+        return res.status(500).json({ error: "Internal server error. Try agina later."});
+    }
+}
+
+const unfavoritePost = async (req, res) => {
+    try{
         const userId = req.userId;
         const {id} = req.params;
         const post = await Post.findById(id);
@@ -217,17 +255,13 @@ const favoriteUnfavoritePost = async (req, res) => {
         if (user.favoritePosts.includes(id)){
             user.favoritePosts.pop(id);
             await user.save();
-            return res.status(200).json({message: "Unfavorited post"});
-        } else {
-            user.favoritePosts.push(id);
-            await user.save();
-            return res.status(200).json({message: "Favorited post"});
         }
+        return res.status(200).json({message: "Unfavorited post"});
     } catch (error){
         console.error("Error favoriting a post: ",error);
         return res.status(500).json({ error: "Internal server error. Try agina later."});
     }
-}
+};
 
 const createComment = async (req, res) => {
     try {
@@ -298,6 +332,6 @@ const updateComment = async (req, res) => {
     }
 }
 module.exports = { 
-    createPost, getPosts, likeUnlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoriteUnfavoritePost,
-    getPostOfChef
+    createPost, getPosts, likePost, unlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoritePost,
+    getPostOfChef, unfavoritePost
 };

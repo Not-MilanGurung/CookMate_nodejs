@@ -324,7 +324,7 @@ const updateProfilePic = async (req, res) => {
         return res.status(200).json({ message: "Successfully updated profile pic", urlToImage: imageURL});
 
     } catch (e) {
-        console.error("Error changing email:", error);
+        console.error("Error changing email:", e);
         return res.status(500).json({ error: "Server error. Please try again later." });
     }
 }

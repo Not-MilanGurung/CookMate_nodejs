@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
       rating: {type: Number, default: 0.0},
       ratingCount : {type: Number, default: 0}
 		},
-    favoritePosts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Booking'}]
+    favoritePosts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Post'}]
   },
   {   
     timestamps: true    
