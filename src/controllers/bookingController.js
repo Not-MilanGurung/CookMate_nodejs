@@ -149,8 +149,8 @@ const getBooking = async (req, res) => {
                     .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'});
         }
         else if (userType == "chef") {
-            bookings = await Booking.find({chef: userId}.populate({path: 'chef', select: 'fullName _id phoneNumber'})
-                    .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'}));
+            bookings = await Booking.find({chef: userId}).populate({path: 'chef', select: 'fullName _id phoneNumber'})
+                    .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'});
         }
         else {
             bookings = { message: "No bookings for admin user"};
