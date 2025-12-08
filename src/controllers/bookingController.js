@@ -55,8 +55,8 @@ const createBooking = async (req, res) => {
 
         await booking.save();
         const {chef: chefData, customer: customerData, ...bookingData} = booking.toObject();
-        bookingData.chef = chefData._id;
-        bookingData.customer = customerData._id;
+        bookingData.chef = {_id: chefData._id, fullName: chefData.fullName};
+        bookingData.customer = {_id: customerData._id, fullName: customerData.fullName};
         return res.status(200).json({ message: "Created booking scuccessfuly", bookingData});
     } 
     catch (e) {
@@ -105,13 +105,8 @@ const updateBookingStatus = async (req, res) => {
                     return res.status(400).json({ error: "The booking is not in pending status"});
                 }                
                 break;
-            case "ongoing":
-                if (booking.status != "upcoming"){    
-                    return res.status(400).json({ error: "The booking is not in upcoming status"});
-                }
-                break;
             case "completed":
-                if (booking.status != "ongoing"){
+                if (booking.status != "upcoming"){
                     return res.status(400).json({ error: "The booking is not in ongoing status"});
                 }
                 break;
@@ -150,10 +145,12 @@ const getBooking = async (req, res) => {
         }
         var bookings;
         if (userType == "customer") {
-            bookings = await Booking.find({customer: userId}).populate({path: 'chef', select: 'fullName _id'});
+            bookings = await Booking.find({customer: userId}).populate({path: 'chef', select: 'fullName _id phoneNumber'})
+                    .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'});
         }
         else if (userType == "chef") {
-            bookings = await Booking.find({chef: userId}.populate({path: 'chef', select: 'fullName _id'}));
+            bookings = await Booking.find({chef: userId}.populate({path: 'chef', select: 'fullName _id phoneNumber'})
+                    .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'}));
         }
         else {
             bookings = { message: "No bookings for admin user"};

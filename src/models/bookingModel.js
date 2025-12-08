@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const bookingStatusEnum = ["pending", "upcoming", "cancelled", "ongoing", "completed"];
+const bookingStatusEnum = ["pending", "upcoming", "cancelled", "completed"];
 
 const bookingSchema = new Schema({
     chef: {type: Schema.Types.ObjectId, ref: 'User', required: true},
