@@ -6,6 +6,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const fetchRoutes = require('./src/routes/fetchRoutes');
 const postRoutes = require('./src/routes/postRoutes');
 const packageRoutes = require('./src/routes/packagesRoutes');
+const bookingRoutes = require('./src/routes/bookinRoutes');
 const {pageNotFound} = require('./src/routes/errorRoutes');
 
 const app = express();
@@ -17,6 +18,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/fetch', fetchRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/packages', packageRoutes);
+app.use('/api/v1/booking', bookingRoutes);
 // At last
 app.use(pageNotFound);
 const server = app.listen(config.PORT, () => {

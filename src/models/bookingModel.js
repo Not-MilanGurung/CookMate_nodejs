@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const bookingStatusEnum = ["pending", "upcoming", "cancelled", "ongoing", "completed"];
+
 const bookingSchema = new Schema({
     chef: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     customer: {type: Schema.Types.ObjectId, ref: 'User', required: true},
@@ -10,7 +12,7 @@ const bookingSchema = new Schema({
     timeInterval: {type: String, required: true},
     packages: [Schema.Types.Mixed],
     cost: {type: Schema.Types.Int32, required: true},
-    status: {type: String, default: "pending", enum : ["pending", "upcoming", "cancelled", "completed"]},
+    status: {type: String, default: "pending", enum : bookingStatusEnum},
     rating: {type: Number, min: 0, max: 5}
 },{
     timestamps: true
@@ -18,4 +20,4 @@ const bookingSchema = new Schema({
 
 const Booking = mongoose.model('Booking', bookingSchema);
 
-module.exports = Booking;
+module.exports = {Booking, bookingStatusEnum};
