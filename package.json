@@ -19,15 +19,14 @@
   },
   "homepage": "https://github.com/Not-MilanGurung/CookMate_nodejs#readme",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "googleapis": "^168.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.11",
     "otp-generator": "^4.0.1"
   },
   "devDependencies": {

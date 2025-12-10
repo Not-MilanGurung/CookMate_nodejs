@@ -1,48 +1,23 @@
-const dotenv = require('dotenv');
-const nodemailer = require('nodemailer');
-const {google} = require('googleapis');
+const  dotenv =  require('dotenv');
 dotenv.config();
+const { TransactionalEmailsApi, SendSmtpEmail } = require('@getbrevo/brevo');
 
-const CLIENT_ID = process.env.GMAIL_CLIENT_ID;
-const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET;
-const REDIRECT_URI = "https://developers.google.com/oauthplayground";
-const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
-
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 const sendOTP = async (email, otp) => {
-  try {
-    const accessToken = await oAuth2Client.getAccessToken();
+  try{
+    let emailAPI = new TransactionalEmailsApi();
+    emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY
+    let message = new SendSmtpEmail();
+    message.subject = "CookMate OTP recovery";
+    message.textContent = `The OTP to perform account recovery is \n${otp}\n This will expire in 5 mins`;
+    message.sender = { name: "CookMate", email: process.env.EMAIL };
+    message.to = [{ email: email }];
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.EMAIL,         // Your Gmail
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: accessToken.token,
-      },
-    });
-
-    const result = await transporter.sendMail({
-      from: `CookMate <${process.env.EMAIL}>`,
-      to: email,
-      subject: "CookMate Account Recovery OTP",
-      text: `The otp to recover you account is ${otp}\nThis expires in 5 minutes`,
-    });
-
-    return true;
+    await emailAPI.sendTransacEmail(message)
+    return true
   } catch (err) {
-    console.error(err);
-    return false
+    console.error('Error mailing', err);
+    return false;
   }
 }
 
