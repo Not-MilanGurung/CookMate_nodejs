@@ -89,8 +89,8 @@ const initiatePayment = async (req, res) =>{
 };
 
 const paymentStatus = async (req, res) => {
-  const { transactionId, status } = req.body;
-  try {
+    try {
+      const { transactionId, status } = req.body;
     const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
       return res.status(400).json({ error: "Transaction not found" });
@@ -125,13 +125,6 @@ const paymentStatus = async (req, res) => {
       );
 
       paymentStatusCheck = response.data;
-        const fields = paymentStatusCheck.signed_field_names.split(",");
-        const dataString = fields.map(f => `${f}=${paymentStatusCheck[f]}`).join(",");
-        const expectedSignature = generateHmacSha256Hash(dataString, config.ESEWA_SECRET);
-
-        if (expectedSignature !== paymentStatusCheck.signature) {
-            return res.status(400).json({ error: "Invalid signature" });
-        }
 
         if (transaction.amount !== paymentStatusCheck.total_amount) {
             return res.status(400).json({ error: "Amount mismatch" });
@@ -174,7 +167,7 @@ const paymentStatus = async (req, res) => {
 const paymentSuccessHandler = async (req, res) => {
     try{
         const { data } = req.query;
-        const decoded = decodeBase64(data);
+        const decoded = JSON.parse(atob(data));
         const decodedData = { transactionId : decoded.transaction_uuid, status: decoded.status };
         req.body = decodedData;
         return paymentStatus(req, res);
@@ -186,7 +179,7 @@ const paymentSuccessHandler = async (req, res) => {
 const paymentFailureHandler = async (req, res) => {
     try{
         const { data } = req.query;
-        const decoded = decodeBase64(data);
+        const decoded = JSON.parse(atob(data));
         const decodedData = { transactionId : decoded.transaction_uuid, status: decoded.status };
         req.body = decodedData;
         return paymentStatus(req, res);
