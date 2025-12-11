@@ -1,8 +1,9 @@
 const Transaction = require('../models/transactionModel');
 const axios = require('axios');
 const config = require('../configs/config');
-const {generateHmacSha256Hash, generateUniqueId} = require('../services/helper');
+const {generateHmacSha256Hash} = require('../services/helper');
 const { Booking } = require('../models/bookingModel');
+const { decodeBase64 } = require('bcryptjs');
 
 const initiatePayment = async (req, res) =>{
     try{
@@ -39,6 +40,7 @@ const initiatePayment = async (req, res) =>{
             payment_gateway: paymentGateway,
         };
         let paymentConfig;
+        const transaction = new Transaction(transactionData);
         if (paymentGateway === "esewa") {
             const paymentData = {
                 amount,
@@ -50,7 +52,7 @@ const initiatePayment = async (req, res) =>{
                 success_url: config.SUCCESS_URL,
                 tax_amount: "0",
                 total_amount: amount,
-                transaction_uuid: generateUniqueId(),
+                transaction_uuid: transaction.id,
             };
 
             const data = `total_amount=${paymentData.total_amount},transaction_uuid=${paymentData.transaction_uuid},product_code=${paymentData.product_code}`;
@@ -77,7 +79,6 @@ const initiatePayment = async (req, res) =>{
             throw new Error("Payment URL is missing in the response");
         }
         // Save transaction record
-        const transaction = new Transaction(transactionData);
         await transaction.save();
 
         return res.send({ url: paymentUrl });
@@ -174,4 +175,25 @@ const paymentStatus = async (req, res) => {
   }
 };
 
-module.exports = {initiatePayment, paymentStatus};
+const paymentSuccessHandler = async (req, res) => {
+    try{
+        const { data } = req.query;
+        const decoded = decodeBase64(data);
+        return res.status(200).json({message: "Payment successfull"});
+    } catch (e) {
+        console.error('Error handling paymentsuccess:', e);
+        return res.status(500).json({error: "Internal server error"});
+    }
+};
+const paymentFailureHandler = async (req, res) => {
+    try{
+        const { data } = req.query;
+        const decoded = decodeBase64(data);
+        return res.status(200).json({message: "Failed successfull"});
+    } catch (e) {
+        console.error('Error handling paymentsuccess:', e);
+        return res.status(500).json({error: "Internal server error"});
+    }
+};
+
+module.exports = {initiatePayment, paymentStatus, paymentFailureHandler, paymentSuccessHandler};
