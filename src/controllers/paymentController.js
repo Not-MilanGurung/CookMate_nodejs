@@ -89,9 +89,9 @@ const initiatePayment = async (req, res) =>{
 };
 
 const paymentStatus = async (req, res) => {
-  const { bookingId, status } = req.body;
+  const { transactionId, status } = req.body;
   try {
-    const transaction = await Transaction.findOne({ product_id: bookingId });
+    const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
       return res.status(400).json({ error: "Transaction not found" });
     }
@@ -99,11 +99,8 @@ const paymentStatus = async (req, res) => {
     const { payment_gateway } = transaction;
 
     if (status === "FAILED") {
-      // Directly update status when failure is reported
-      await Transaction.updateOne(
-        { product_id: bookingId },
-        { $set: { status: "FAILED", updatedAt: new Date() } }
-      );
+        transaction.status = "FAILED";
+        await transaction.save();
 
       return res.status(200).json({
         error: "Transaction status updated to FAILED",
@@ -117,7 +114,7 @@ const paymentStatus = async (req, res) => {
       const paymentData = {
         product_code: config.ESEWA_MERCHANT_ID,
         total_amount: transaction.amount,
-        transaction_uuid: transaction.product_id,
+        transaction_uuid: transaction.id,
       };
 
       const response = await axios.get(
@@ -140,12 +137,11 @@ const paymentStatus = async (req, res) => {
             return res.status(400).json({ error: "Amount mismatch" });
         }
       if (paymentStatusCheck.status === "COMPLETE") {
-        await Transaction.updateOne(
-          { product_id: bookingId },
-          { $set: { status: "COMPLETED", updatedAt: new Date() } }
-        );
+        transaction.status = "COMPLETED";
+        await transaction.save();
+
         await Booking.updateOne(
-            { _id: bookingId },
+            { _id: transaction.product_id },
             { $set: { paymentDone: true}}
         );
         return res.status(200).json({
@@ -179,7 +175,9 @@ const paymentSuccessHandler = async (req, res) => {
     try{
         const { data } = req.query;
         const decoded = decodeBase64(data);
-        return res.status(200).json({message: "Payment successfull"});
+        const decodedData = { transactionId : decoded.transaction_uuid, status: decodec.status };
+        req.body = decodedData;
+        return paymentStatus(req, res);
     } catch (e) {
         console.error('Error handling paymentsuccess:', e);
         return res.status(500).json({error: "Internal server error"});
@@ -189,7 +187,9 @@ const paymentFailureHandler = async (req, res) => {
     try{
         const { data } = req.query;
         const decoded = decodeBase64(data);
-        return res.status(200).json({message: "Failed successfull"});
+        const decodedData = { transactionId : decoded.transaction_uuid, status: decodec.status };
+        req.body = decodedData;
+        return paymentStatus(req, res);
     } catch (e) {
         console.error('Error handling paymentsuccess:', e);
         return res.status(500).json({error: "Internal server error"});
