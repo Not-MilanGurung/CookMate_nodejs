@@ -240,6 +240,41 @@ const favoritePost = async (req, res) => {
     }
 }
 
+const getFavoritePosts = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const user = await User.findById(userId);
+        if (!user){
+            return res.status(404).json({ error: 'User not found'});
+        }
+        const posts = await Post.find({ _id: { $in: user.favoritePosts } })
+            .sort({ createdAt: -1 })
+            .populate('chef', 'fullName _id urlToImage chef')
+            .exec();
+        const existingIds = posts.map(p => String(p.id));
+
+        user.favoritePosts = user.favoritePosts.filter(id => existingIds.includes(String(id)));
+
+        await user.save();
+        const postMap = posts.map((e) => {
+            const {likes : likes, comments : __, ...data} = e.toObject();
+            data.liked = false;
+            data.favorite = false;
+            if (likes.some(id => id.equals(userId))){
+                data.liked = true;
+            } 
+            if (user.favoritePosts.includes(data._id)){
+                data.favorite = true;
+            }
+            return data;
+        }); 
+        return res.status(200).json({posts: postMap});
+    } catch (error){
+        console.error('Error getting favorite post: ', error);
+        return res.status(500).json({error: "Internal server error. Try again later."});
+    }
+}
+
 const unfavoritePost = async (req, res) => {
     try{
         const userId = req.userId;
@@ -333,5 +368,5 @@ const updateComment = async (req, res) => {
 }
 module.exports = { 
     createPost, getPosts, likePost, unlikePost, updatePost, getPostById, deletePost, createComment, deleteComment, updateComment, favoritePost,
-    getPostOfChef, unfavoritePost
+    getPostOfChef, unfavoritePost, getFavoritePosts
 };

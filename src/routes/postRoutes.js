@@ -23,6 +23,15 @@ router.post('/', verifyToken, upload.single('image'), postController.createPost)
  */
 router.get('/', verifyToken, postController.getPosts);
 
+
+/**
+ * @description Route to get favorite posts of a user
+ * @access Public
+ * @method GET
+ * @returns {error}
+ * @returns {posts}
+ */
+router.get('/favorite', verifyToken, postController.getFavoritePosts);
 /**
  * @description Route to get post by id
  * @access Public
@@ -32,6 +41,7 @@ router.get('/', verifyToken, postController.getPosts);
  * @returns { liked, postData}
  */
 router.get('/:id', validBsonId, verifyToken, postController.getPostById);
+
 /**
  * @description Route to update post
  * @access Public
