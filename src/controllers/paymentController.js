@@ -175,7 +175,7 @@ const paymentSuccessHandler = async (req, res) => {
     try{
         const { data } = req.query;
         const decoded = decodeBase64(data);
-        const decodedData = { transactionId : decoded.transaction_uuid, status: decodec.status };
+        const decodedData = { transactionId : decoded.transaction_uuid, status: decoded.status };
         req.body = decodedData;
         return paymentStatus(req, res);
     } catch (e) {
@@ -187,7 +187,7 @@ const paymentFailureHandler = async (req, res) => {
     try{
         const { data } = req.query;
         const decoded = decodeBase64(data);
-        const decodedData = { transactionId : decoded.transaction_uuid, status: decodec.status };
+        const decodedData = { transactionId : decoded.transaction_uuid, status: decoded.status };
         req.body = decodedData;
         return paymentStatus(req, res);
     } catch (e) {
