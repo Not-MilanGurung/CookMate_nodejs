@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Not-MilanGurung/CookMate_nodejs#readme",
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "dotenv": "^17.2.3",

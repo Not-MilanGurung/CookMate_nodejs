@@ -8,6 +8,7 @@ const postRoutes = require('./src/routes/postRoutes');
 const packageRoutes = require('./src/routes/packagesRoutes');
 const bookingRoutes = require('./src/routes/bookinRoutes');
 const otpRoutes = require('./src/routes/otpRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
 const {pageNotFound} = require('./src/routes/errorRoutes');
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/packages', packageRoutes);
 app.use('/api/v1/booking', bookingRoutes);
 app.use('/api/v1/otp', otpRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 // At last
 app.use(pageNotFound);
 const server = app.listen(config.PORT, () => {

@@ -14,7 +14,8 @@ const bookingSchema = new Schema({
     cost: {type: Schema.Types.Int32, required: true},
     status: {type: String, default: "pending", enum : bookingStatusEnum},
     rating: {type: Number, min: 0, max: 5},
-    review: {type: String}
+    review: {type: String},
+    paymentDone: {type: Boolean, default: false}
 },{
     timestamps: true
 });

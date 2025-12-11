@@ -30,7 +30,16 @@ const config = {
     CLOUDINARY_API_KEY : process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET : process.env.CLOUDINARY_API_SECRET,
     EMAIL : process.env.EMAIL,
-    MAILER : sendOTP
+    MAILER : sendOTP,
+
+    FAILURE_URL: process.env.FAILURE_URL,
+    SUCCESS_URL: process.env.SUCCESS_URL,
+
+    ESEWA_MERCHANT_ID: process.env.ESEWA_MERCHANT_ID,
+    ESEWA_SECRET: process.env.ESEWA_SECRET,
+
+    ESEWA_PAYMENT_URL: process.env.ESEWA_PAYMENT_URL,
+    ESEWA_PAYMENT_STATUS_CHECK_URL: process.env.ESEWA_PAYMENT_STATUS_CHECK_URL
 }
 
 module.exports = config;
