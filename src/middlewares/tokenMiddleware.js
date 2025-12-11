@@ -24,7 +24,6 @@ const validBsonId = (req, res, next) => {
 
 const verifyToken = (req, res, next) => {
     const token = req.header('Authorization');
-    // console.log(token);
     if (!token){
         return res.status(401).json({ error: 'Access denied'});
     }
@@ -50,7 +49,6 @@ const verifyToken = (req, res, next) => {
 
 const tokenExpired =(req, res) => {
     const token = req.header('Authorization');
-    // console.log(token);
     if (!token){
         return res.status(401).json({ error: 'Access denied'});
     }

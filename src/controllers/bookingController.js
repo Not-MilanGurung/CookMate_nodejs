@@ -18,6 +18,10 @@ const createBooking = async (req, res) => {
         if (!customer) {
             return res.status(404).json({ error: "User not found" });
         }
+        const exisitingBookings = await Booking.findOne({status: {$in : ["pending", "upcoming"]}});
+        if (exisitingBookings) {
+            return res.status(400).json({error: "You can only make one booking at a time"});
+        }
         if (!mongoose.Types.ObjectId.isValid(chefId)){
             return res.status(400).json({ error: "Invalid chef id"});
         }
@@ -95,6 +99,19 @@ const updateBookingStatus = async (req, res) => {
         if (!user){
             return res.status(404).json({ error: "The authenticated user not found"});
         }
+        if (booking.customer.equals(userId)){
+            if (status != "cancelled"){
+                return res.status(403).json({error: "The customer can only make or cancel the request"});
+            }
+            if (booking.status != "pending") {
+                return res.status(400).json({error: "The booking is already accept. Contact an admin to cancel"});
+            }
+            booking.status = status;
+            await booking.save();
+            return res.status(200).json({message: "Updated booking status to " + status});
+
+        }
+
         if ((!booking.chef.equals(userId)) && (!user.role.includes('admin'))){
             return res.status(403).json({error: "Only the chef can update booking status"});
         }
@@ -115,7 +132,7 @@ const updateBookingStatus = async (req, res) => {
         }
         booking.status = status;
         await booking.save();
-        return res.status(200).json({message: "Updated booking status to " + status})
+        return res.status(200).json({message: "Updated booking status to " + status});
 
     } catch (e) {
         if (e instanceof mongoose.Error.ValidationError){
@@ -128,7 +145,7 @@ const updateBookingStatus = async (req, res) => {
     }
 }
 
-const getBooking = async (req, res) => {
+const getBookings = async (req, res) => {
     try {
         const userId = req.userId;
         var { userType } = req.query;
@@ -162,4 +179,52 @@ const getBooking = async (req, res) => {
     }
 }
 
-module.exports = { createBooking, updateBookingStatus, getBooking };
+const getRecentBooking = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const booking = await Booking.findOne({customer : userId}, {},{sort: {'createdAt' : -1}})
+                .populate({path: 'chef', select: 'fullName _id phoneNumber urlToImage chef'})
+                .populate({path: 'customer', select: 'fullName _id phoneNumber userAddress'})
+                .populate({path: 'packages.id', select : 'name'});
+        return res.status(200).json({booking});
+    } catch (e) {
+        console.error('Error getting recent booking', e);
+        return res.status(500).json({error: "Server error. Please try agian later."});
+    }
+}
+
+const rateBooking = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const {id} = req.params;
+        const {rating, review} = req.body;
+        
+        if (!rating){
+            return res.status(400).json({ error: "Insuffecient fields"});
+        }
+        const booking = await Booking.findById(id);
+        if (!booking){
+            return res.status(404).json({ error: "Booking not found"});
+        }
+        if (!booking.customer.equals(userId)){
+            return res.status(403).json({ error: "Unauthorised access"});
+        }
+        if (booking.status != "completed"){
+            return res.status(400).json({ error: "You can only rate completed bookings"});
+        }
+        if (rating > 5 || rating < 0){
+            return res.status(400).json({ error: "Rating must be between 0 and 5"});
+        }
+        booking.rating = rating;
+        if (review){
+            booking.review = review;
+        }
+        await booking.save();
+        return res.status(200).json({message : "Rating successfull"});
+    } catch (e) {
+        console.error('Error rating booking:', e);
+        return res.status(500).json({error: "Server error. Please try again later."});
+    }
+}
+
+module.exports = { createBooking, updateBookingStatus, getBookings, getRecentBooking, rateBooking };

@@ -1,4 +1,4 @@
-const {createBooking, getBooking, updateBookingStatus} = require('../controllers/bookingController');
+const {createBooking, getBookings, updateBookingStatus, getRecentBooking, rateBooking} = require('../controllers/bookingController');
 const {verifyToken, validBsonId} = require('../middlewares/tokenMiddleware');
 const router = require('express').Router();
 
@@ -22,7 +22,17 @@ router.post('', verifyToken, createBooking);
  * @returns {error}
  * @returns {bookings}
  */
-router.get('',verifyToken, getBooking);
+router.get('',verifyToken, getBookings);
+
+/**
+ * @description Route to get the most recent booking
+ * @route /api/v1/booking/recent
+ * @access Public
+ * @method GET
+ * @returns {error}
+ * @returns {booking}
+ */
+router.get('/recent', verifyToken, getRecentBooking);
 
 /**
  * @description Route to update booking status
@@ -34,5 +44,16 @@ router.get('',verifyToken, getBooking);
  * @returns {error}
  */
 router.put('/:id', validBsonId, verifyToken, updateBookingStatus);
+
+/**
+ * @description Route to rate and review booking
+ * @route /api/v1/booking/:id/rate
+ * @access Public
+ * @method Post
+ * @body {rating, review}
+ * @returns {message}
+ * @returns {error}
+ */
+router.post('/:id/rate', validBsonId, verifyToken, rateBooking);
 
 module.exports = router;
