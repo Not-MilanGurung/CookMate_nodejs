@@ -18,7 +18,7 @@ const createBooking = async (req, res) => {
         if (!customer) {
             return res.status(404).json({ error: "User not found" });
         }
-        const exisitingBookings = await Booking.findOne({status: {$in : ["pending", "upcoming"]}});
+        const exisitingBookings = await Booking.findOne({customer: userId, status: {$in : ["pending", "upcoming"]}});
         if (exisitingBookings) {
             return res.status(400).json({error: "You can only make one booking at a time"});
         }
