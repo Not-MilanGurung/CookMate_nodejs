@@ -1,7 +1,7 @@
 const Transaction = require('../models/transactionModel');
 const axios = require('axios');
 const config = require('../configs/config');
-const {generateHmacSha256Hash} = require('../services/helper');
+const {generateHmacSha256Hash, generateUniqueId} = require('../services/helper');
 const { Booking } = require('../models/bookingModel');
 
 const initiatePayment = async (req, res) =>{
@@ -50,7 +50,7 @@ const initiatePayment = async (req, res) =>{
                 success_url: config.SUCCESS_URL,
                 tax_amount: "0",
                 total_amount: amount,
-                transaction_uuid: bookingId,
+                transaction_uuid: generateUniqueId(),
             };
 
             const data = `total_amount=${paymentData.total_amount},transaction_uuid=${paymentData.transaction_uuid},product_code=${paymentData.product_code}`;
@@ -76,7 +76,6 @@ const initiatePayment = async (req, res) =>{
         if (!paymentUrl) {
             throw new Error("Payment URL is missing in the response");
         }
-
         // Save transaction record
         const transaction = new Transaction(transactionData);
         await transaction.save();
